@@ -1,63 +1,91 @@
-import { BarChart3, TrendingUp, AlertCircle, PackageCheck, Users } from "lucide-react";
+import { StatCard } from "@/components/ui/stat-card";
+import { Card } from "@/components/ui/card";
+import { BarChart } from "@/components/ui/bar-chart";
+import { Badge } from "@/components/ui/badge";
+import { TrendingUp, AlertCircle, PackageCheck, Users } from "lucide-react";
+
+const chartData = [
+  { label: 'Mon', value: 145 },
+  { label: 'Tue', value: 160 },
+  { label: 'Wed', value: 210 },
+  { label: 'Thu', value: 180 },
+  { label: 'Fri', value: 230 },
+  { label: 'Sat', value: 110 },
+  { label: 'Sun', value: 85 },
+];
 
 export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-outfit font-medium tracking-tight">Platform Overview</h1>
+        <h1 className="text-3xl font-[family-name:var(--font-outfit)] font-semibold tracking-tight">Platform Overview</h1>
         <p className="text-muted-foreground mt-1">Live operations and system health.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          { label: "Today's Pickups", value: "142", trend: "+12%", icon: PackageCheck, alert: false },
-          { label: "Active Drivers", value: "38", trend: "0%", icon: TrendingUp, alert: false },
-          { label: "Pending Reviews", value: "24", trend: "+5", icon: AlertCircle, alert: true },
-          { label: "New Users", value: "890", trend: "+24%", icon: Users, alert: false },
-        ].map((stat, i) => (
-          <div key={i} className={`p-6 rounded-2xl border ${stat.alert ? 'bg-destructive/10 border-destructive/20' : 'bg-secondary/10 border-white/5'} flex flex-col`}>
-            <div className="flex justify-between items-start mb-4">
-              <div className={`text-sm font-medium ${stat.alert ? 'text-destructive' : 'text-muted-foreground'}`}>{stat.label}</div>
-              <div className={`p-2 rounded-lg ${stat.alert ? 'bg-destructive/20 text-destructive' : 'bg-white/5 text-muted-foreground'}`}>
-                <stat.icon className="h-4 w-4" />
-              </div>
-            </div>
-            <div className="text-3xl font-outfit font-medium mb-1">{stat.value}</div>
-            <div className={`text-xs ${stat.alert ? 'text-destructive/80 font-bold' : 'text-accent'}`}>{stat.trend} from yesterday</div>
-          </div>
-        ))}
+        <StatCard 
+          label="Today's Pickups" 
+          value="142" 
+          trend={{ value: 12, label: "vs yesterday" }} 
+          icon={<PackageCheck className="h-5 w-5" />} 
+          sparklineData={[10, 20, 15, 30, 25, 40, 45]}
+        />
+        <StatCard 
+          label="Active Drivers" 
+          value="38" 
+          trend={{ value: 0 }} 
+          icon={<TrendingUp className="h-5 w-5" />} 
+          variant="accent"
+        />
+        <StatCard 
+          label="Pending Reviews" 
+          value="24" 
+          trend={{ value: -5, label: "from last hour" }} 
+          icon={<AlertCircle className="h-5 w-5" />} 
+          variant="destructive"
+        />
+        <StatCard 
+          label="New Users" 
+          value="890" 
+          trend={{ value: 24, label: "this week" }} 
+          icon={<Users className="h-5 w-5" />} 
+          sparklineData={[100, 150, 130, 200, 220, 280, 310]}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <div className="p-6 rounded-3xl border border-white/5 bg-secondary/10 min-h-[400px]">
-            <h2 className="text-xl font-outfit font-medium mb-6">Processing Volume (30 Days)</h2>
-            <div className="w-full h-[300px] flex items-center justify-center border border-dashed border-white/10 rounded-xl text-muted-foreground">
-              <BarChart3 className="h-8 w-8 mr-2" /> Chart Visualization Placeholder
+          <Card className="min-h-[400px]">
+            <h2 className="text-xl font-[family-name:var(--font-outfit)] font-semibold mb-6">Processing Volume (This Week)</h2>
+            <div className="w-full">
+              <BarChart data={chartData} height={280} />
             </div>
-          </div>
+          </Card>
         </div>
         
         <div className="space-y-6">
-          <div className="p-6 rounded-3xl border border-white/5 bg-secondary/10">
-            <h2 className="text-xl font-outfit font-medium mb-6">Operations Alerts</h2>
+          <Card>
+            <h2 className="text-xl font-[family-name:var(--font-outfit)] font-semibold mb-6">Operations Alerts</h2>
             <div className="space-y-4">
               {[
-                { title: "Driver #D-102 Unreachable", time: "10 mins ago", type: "critical" },
+                { title: "Driver #D-102 Unreachable", time: "10 mins ago", type: "error" },
                 { title: "AI Confidence Low (Booking #REV-8490)", time: "15 mins ago", type: "warning" },
                 { title: "Partner capacity > 90%", time: "1 hour ago", type: "info" },
               ].map((alert, i) => (
                 <div key={i} className={`p-4 rounded-xl border ${
-                  alert.type === 'critical' ? 'border-destructive/30 bg-destructive/10' :
-                  alert.type === 'warning' ? 'border-yellow-500/30 bg-yellow-500/10' :
-                  'border-white/10 bg-black/20'
+                  alert.type === 'error' ? 'border-destructive/30 bg-destructive/10' :
+                  alert.type === 'warning' ? 'border-warning/30 bg-warning/10' :
+                  'border-info/30 bg-info/10'
                 }`}>
-                  <div className="font-medium text-sm mb-1">{alert.title}</div>
-                  <div className="text-xs opacity-70">{alert.time}</div>
+                  <div className="flex items-start justify-between">
+                    <div className="font-medium text-sm mb-1">{alert.title}</div>
+                    <Badge variant={alert.type as any} size="sm">{alert.type}</Badge>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-2">{alert.time}</div>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>
