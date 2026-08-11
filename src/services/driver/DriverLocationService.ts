@@ -44,6 +44,6 @@ export class DriverLocationService {
    * Gets the distance between two drivers (example of GEO usage)
    */
   static async getDistanceBetween(driverA: string, driverB: string) {
-    return redis.geodist(DRIVER_LOCATION_KEY, driverA, driverB, 'km');
+    return redis.geodist(DRIVER_LOCATION_KEY, driverA, driverB, 'km' as any);
   }
 }

@@ -2,8 +2,9 @@ import { ShieldCheck, Leaf, Calendar, Building, CheckCircle2 } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export default function VerifyCertificatePage({ params }: { params: { id: string } }) {
-  // In a real implementation, this would fetch from the database using params.id
+export default async function VerifyCertificatePage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  // In a real implementation, this would fetch from the database using resolvedParams.id
   // For MVP UI demonstration, we render a verified state.
   const isValid = true;
   
@@ -46,7 +47,7 @@ export default function VerifyCertificatePage({ params }: { params: { id: string
               </div>
               <div className="text-right">
                 <div className="text-sm text-muted-foreground mb-1">Certificate ID</div>
-                <div className="font-mono font-medium text-white">{params.id || 'CERT-8492-ABCD'}</div>
+                <div className="font-mono font-medium text-white">{resolvedParams.id || 'CERT-8492-ABCD'}</div>
               </div>
             </div>
 
