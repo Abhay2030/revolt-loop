@@ -4,9 +4,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Mail, MapPin, Phone, MessageSquare } from "lucide-react";
 
-export const metadata = {
-  title: "Contact Support | ReVolt Energy",
-  description: "Get in touch with the ReVolt Loop team.",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact Support",
+  description: "Get in touch with the ReVolt Energy team. We're here to help with pickups, enterprise partnerships, and general inquiries.",
+  openGraph: {
+    title: "Contact Support | ReVolt Energy",
+    description: "Get in touch with the ReVolt Energy team. We're here to help with pickups, enterprise partnerships, and general inquiries.",
+  },
 };
 
 export default function ContactPage() {

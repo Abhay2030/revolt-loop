@@ -2,9 +2,15 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
 import { Target, Lightbulb, Users, Globe } from "lucide-react";
 
-export const metadata = {
-  title: "About Us | ReVolt Energy",
-  description: "The team and mission behind ReVolt Loop's circular economy platform.",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Us",
+  description: "The team and mission behind ReVolt Energy's circular economy platform. Learn about our zero waste to landfill commitment and our backers.",
+  openGraph: {
+    title: "About Us | ReVolt Energy",
+    description: "The team and mission behind ReVolt Energy's circular economy platform. Learn about our zero waste to landfill commitment and our backers.",
+  },
 };
 
 const values = [

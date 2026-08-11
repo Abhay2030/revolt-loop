@@ -3,11 +3,18 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, BookOpen, FileText } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
-export const metadata = {
-  title: "Blog & Resources | ReVolt Energy",
-  description: "Insights, guides, and updates on the circular economy.",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Blog & Resources",
+  description: "Insights, guides, and updates on the circular economy, EPR compliance, and sustainable e-waste recycling.",
+  openGraph: {
+    title: "Blog & Resources | ReVolt Energy",
+    description: "Insights, guides, and updates on the circular economy, EPR compliance, and sustainable e-waste recycling.",
+  },
 };
 
 const posts = [
@@ -48,11 +55,11 @@ export default function BlogPage() {
         {posts.map((post, i) => (
           <Card key={i} noPadding className="overflow-hidden group hover:border-accent/40 transition-colors flex flex-col cursor-pointer">
             <div className="h-48 overflow-hidden relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
+              <Image 
                 src={post.image} 
                 alt={post.title} 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 grayscale group-hover:grayscale-0"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-500 grayscale group-hover:grayscale-0"
               />
               <div className="absolute top-4 left-4">
                 <Badge variant="info" className="bg-background/80 backdrop-blur border-border text-foreground">

@@ -5,9 +5,15 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, XCircle } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Pricing | ReVolt Energy",
-  description: "Transparent pricing for consumer and enterprise e-waste recycling.",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Pricing",
+  description: "Transparent pricing for consumer and enterprise e-waste recycling. Choose the plan that fits your volume with no hidden fees.",
+  openGraph: {
+    title: "Pricing | ReVolt Energy",
+    description: "Transparent pricing for consumer and enterprise e-waste recycling. Choose the plan that fits your volume with no hidden fees.",
+  },
 };
 
 export default function PricingPage() {

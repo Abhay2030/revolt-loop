@@ -5,9 +5,15 @@ import { LineChart } from "@/components/ui/line-chart";
 import { Card } from "@/components/ui/card";
 import { Leaf, Recycle, Droplets, Zap } from "lucide-react";
 
-export const metadata = {
-  title: "Environmental Impact | ReVolt Energy",
-  description: "Track the real-time environmental impact of the ReVolt Loop platform.",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Environmental Impact",
+  description: "Track the real-time environmental impact of the ReVolt Loop platform. See how our e-waste recycling initiatives are reducing CO2 emissions and preventing toxic water.",
+  openGraph: {
+    title: "Environmental Impact | ReVolt Energy",
+    description: "Track the real-time environmental impact of the ReVolt Loop platform. See how our e-waste recycling initiatives are reducing CO2 emissions and preventing toxic water.",
+  },
 };
 
 const barData = [

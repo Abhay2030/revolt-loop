@@ -5,9 +5,15 @@ import { ArrowRight, MapPin, Factory, ShieldCheck, CheckCircle2 } from "lucide-r
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export const metadata = {
-  title: "How It Works | ReVolt Energy",
-  description: "Learn how the ReVolt Loop process works, from pickup to certified recycling.",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "How It Works",
+  description: "Learn how the ReVolt Loop process works, from pickup to certified recycling. A transparent, five-step process powering the circular economy.",
+  openGraph: {
+    title: "How It Works | ReVolt Energy",
+    description: "Learn how the ReVolt Loop process works, from pickup to certified recycling. A transparent, five-step process powering the circular economy.",
+  },
 };
 
 const steps = [
