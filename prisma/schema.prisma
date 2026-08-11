@@ -1,0 +1,416 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==========================================
+// USER & ACCESS CONTROL
+// ==========================================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String?
+  phone         String?
+  role          Role      @default(CONSUMER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  organizations OrganizationMember[]
+  addresses     Address[]
+  bookings      Booking[]
+  driverProfile Driver?
+  aiReviews     AiReview[]
+  rewards       RewardsAccount?
+  tickets       SupportTicket[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+}
+
+enum Role {
+  CONSUMER
+  DRIVER
+  ENTERPRISE_ADMIN
+  PARTNER
+  OPS_MANAGER
+  ADMIN
+  SUPER_ADMIN
+  AUDITOR
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  type      OrgType  @default(ENTERPRISE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members      OrganizationMember[]
+  bookings     Booking[]
+  certificates Certificate[]
+  esgReports   EsgReport[]
+  partnerInfo  Partner?
+}
+
+enum OrgType {
+  ENTERPRISE
+  PARTNER
+}
+
+model OrganizationMember {
+  id             String       @id @default(uuid())
+  userId         String
+  organizationId String
+  role           String       @default("MEMBER")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([userId, organizationId])
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String?
+  street    String
+  city      String
+  state     String
+  postal    String
+  country   String   @default("India")
+  lat       Float?
+  lng       Float?
+  createdAt DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id])
+  bookings  Booking[]
+}
+
+// ==========================================
+// BOOKING & LOGISTICS
+// ==========================================
+
+model Booking {
+  id             String        @id @default(uuid())
+  userId         String
+  organizationId String?
+  addressId      String
+  status         BookingStatus @default(DRAFT)
+  scheduledFor   DateTime?
+  completedAt    DateTime?
+  driverId       String?
+  routeId        String?
+  totalFee       Float         @default(0.0)
+  totalValue     Float         @default(0.0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user         User            @relation(fields: [userId], references: [id])
+  organization Organization?   @relation(fields: [organizationId], references: [id])
+  address      Address         @relation(fields: [addressId], references: [id])
+  driver       Driver?         @relation(fields: [driverId], references: [id])
+  route        Route?          @relation(fields: [routeId], references: [id])
+  items        BookingItem[]
+  events       PickupEvent[]
+  certificates Certificate[]
+  payments     Payment[]
+}
+
+enum BookingStatus {
+  DRAFT
+  PENDING_CONFIRMATION
+  CONFIRMED
+  ASSIGNED
+  DRIVER_EN_ROUTE
+  ARRIVED
+  PICKED_UP
+  SORTING
+  PROCESSING
+  RECYCLED
+  CERTIFICATE_ISSUED
+  COMPLETED
+  CANCELLED
+  FAILED
+  DISPUTED
+}
+
+model BookingItem {
+  id            String       @id @default(uuid())
+  bookingId     String
+  deviceId      String
+  quantity      Int          @default(1)
+  condition     String?
+  estimatedValue Float       @default(0.0)
+  createdAt     DateTime     @default(now())
+
+  booking       Booking      @relation(fields: [bookingId], references: [id])
+  device        Device       @relation(fields: [deviceId], references: [id])
+  aiInferences  AiInference[]
+}
+
+model Device {
+  id          String   @id @default(uuid())
+  category    String
+  brand       String?
+  model       String?
+  hazardous   Boolean  @default(false)
+  baseValue   Float    @default(0.0)
+  weight      Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items       BookingItem[]
+}
+
+model DeviceImage {
+  id            String   @id @default(uuid())
+  bookingItemId String
+  url           String
+  uploadedAt    DateTime @default(now())
+}
+
+model PickupEvent {
+  id        String        @id @default(uuid())
+  bookingId String
+  status    BookingStatus
+  notes     String?
+  location  String?       // LatLng
+  timestamp DateTime      @default(now())
+
+  booking   Booking       @relation(fields: [bookingId], references: [id])
+}
+
+// ==========================================
+// DRIVERS & ROUTES
+// ==========================================
+
+model Driver {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  vehicleId String?
+  status    String   @default("OFFLINE")
+  createdAt DateTime @default(now())
+
+  user      User             @relation(fields: [userId], references: [id])
+  vehicle   Vehicle?         @relation(fields: [vehicleId], references: [id])
+  bookings  Booking[]
+  routes    Route[]
+}
+
+model Vehicle {
+  id          String   @id @default(uuid())
+  license     String   @unique
+  type        String
+  capacity    Float?
+  createdAt   DateTime @default(now())
+
+  drivers     Driver[]
+}
+
+
+
+model Route {
+  id        String   @id @default(uuid())
+  driverId  String
+  date      DateTime
+  status    String   @default("PLANNED")
+  createdAt DateTime @default(now())
+
+  driver    Driver    @relation(fields: [driverId], references: [id])
+  bookings  Booking[]
+}
+
+// ==========================================
+// PARTNERS & RECYCLING
+// ==========================================
+
+model Partner {
+  id             String   @id @default(uuid())
+  organizationId String   @unique
+  certification  String?
+  capacity       Float?
+  status         String   @default("ACTIVE")
+  
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  manifests      PartnerManifest[]
+}
+
+model PartnerManifest {
+  id        String   @id @default(uuid())
+  partnerId String
+  status    String   @default("PENDING")
+  sentAt    DateTime @default(now())
+  receivedAt DateTime?
+
+  partner   Partner  @relation(fields: [partnerId], references: [id])
+  batches   MaterialBatch[]
+}
+
+model MaterialBatch {
+  id         String   @id @default(uuid())
+  manifestId String
+  material   String
+  weight     Float
+  status     String   @default("RECEIVED")
+
+  manifest   PartnerManifest @relation(fields: [manifestId], references: [id])
+}
+
+// ==========================================
+// CERTIFICATES & COMPLIANCE
+// ==========================================
+
+model Certificate {
+  id             String   @id @default(uuid())
+  bookingId      String
+  organizationId String?
+  hash           String   @unique
+  status         String   @default("ISSUED")
+  issuedAt       DateTime @default(now())
+  dataMethod     String?
+  co2Avoided     Float?
+
+  booking        Booking       @relation(fields: [bookingId], references: [id])
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  events         CertificateEvent[]
+}
+
+model CertificateEvent {
+  id            String   @id @default(uuid())
+  certificateId String
+  action        String
+  timestamp     DateTime @default(now())
+
+  certificate   Certificate @relation(fields: [certificateId], references: [id])
+}
+
+// ==========================================
+// AI & DATA PROCESSING
+// ==========================================
+
+model AiInference {
+  id            String   @id @default(uuid())
+  bookingItemId String
+  imageUrl      String
+  prediction    String
+  confidence    Float
+  hazardous     Boolean
+  modelVersion  String
+  createdAt     DateTime @default(now())
+
+  bookingItem   BookingItem @relation(fields: [bookingItemId], references: [id])
+  review        AiReview?
+}
+
+model AiReview {
+  id             String   @id @default(uuid())
+  inferenceId    String   @unique
+  reviewerId     String
+  finalCategory  String
+  finalCondition String
+  finalHazardous Boolean
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  inference      AiInference @relation(fields: [inferenceId], references: [id])
+  reviewer       User        @relation(fields: [reviewerId], references: [id])
+}
+
+// ==========================================
+// REWARDS & PAYMENTS
+// ==========================================
+
+model RewardsAccount {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  points      Int      @default(0)
+  lifetime    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user         User                 @relation(fields: [userId], references: [id])
+  transactions RewardTransaction[]
+}
+
+model RewardTransaction {
+  id        String   @id @default(uuid())
+  accountId String
+  amount    Int
+  type      String   // EARN, REDEEM
+  reason    String
+  createdAt DateTime @default(now())
+
+  account   RewardsAccount @relation(fields: [accountId], references: [id])
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  bookingId String
+  amount    Float
+  currency  String   @default("INR")
+  status    String   @default("PENDING")
+  gatewayId String?
+  createdAt DateTime @default(now())
+
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+}
+
+// ==========================================
+// SYSTEM & NOTIFICATIONS
+// ==========================================
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  body      String
+  type      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  actorId   String?
+  action    String
+  entity    String
+  entityId  String
+  metadata  Json?
+  ip        String?
+  timestamp DateTime @default(now())
+
+  actor     User?    @relation(fields: [actorId], references: [id])
+}
+
+model EsgReport {
+  id             String   @id @default(uuid())
+  organizationId String
+  periodStart    DateTime
+  periodEnd      DateTime
+  metrics        Json
+  generatedAt    DateTime @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+}
+
+model SupportTicket {
+  id        String   @id @default(uuid())
+  userId    String
+  category  String
+  status    String   @default("OPEN")
+  subject   String
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id])
+}
