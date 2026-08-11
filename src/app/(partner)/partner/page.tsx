@@ -1,3 +1,4 @@
+'use client';
 import { Factory, PackageCheck, Cpu, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";

@@ -1,6 +1,5 @@
 'use client';
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +7,9 @@ import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { Leaf } from "lucide-react";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -20,28 +20,19 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
+    // Simulate registration
     try {
-      const res = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (res?.error) {
-        setError("Invalid email or password");
-      } else {
-        router.push("/app");
-        router.refresh();
-      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      router.push("/login?registered=true");
     } catch (err) {
-      setError("An error occurred during sign in.");
+      setError("An error occurred during registration.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden px-4 py-12">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-accent/10 via-background to-background" />
       
       <Card className="w-full max-w-md p-8 sm:p-10 relative z-10 bg-surface-1/80 backdrop-blur-2xl border-border shadow-2xl">
@@ -51,8 +42,8 @@ export default function LoginPage() {
               <Leaf className="h-6 w-6 text-accent-foreground" />
             </div>
           </Link>
-          <h1 className="text-3xl font-[family-name:var(--font-outfit)] font-semibold tracking-tight">Sign in to ReVolt</h1>
-          <p className="text-muted-foreground mt-2">Enter your details to access your account</p>
+          <h1 className="text-3xl font-[family-name:var(--font-outfit)] font-semibold tracking-tight">Create Account</h1>
+          <p className="text-muted-foreground mt-2">Join ReVolt and start recycling responsibly</p>
         </div>
 
         {error && (
@@ -62,6 +53,17 @@ export default function LoginPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="name">Full Name</label>
+            <Input 
+              id="name"
+              type="text" 
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="John Doe"
+            />
+          </div>
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor="email">Email address</label>
             <Input 
@@ -74,10 +76,7 @@ export default function LoginPage() {
             />
           </div>
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium" htmlFor="password">Password</label>
-              <Link href="/forgot-password" className="text-xs text-accent hover:underline font-medium">Forgot password?</Link>
-            </div>
+            <label className="text-sm font-medium" htmlFor="password">Password</label>
             <Input 
               id="password"
               type="password" 
@@ -93,20 +92,12 @@ export default function LoginPage() {
             className="w-full h-12 rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 text-base font-semibold"
             disabled={loading}
           >
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? "Creating account..." : "Sign up"}
           </Button>
         </form>
 
         <div className="mt-8 text-center text-sm text-muted-foreground">
-          Don't have an account? <Link href="/register" className="text-accent hover:underline font-medium">Create one</Link>
-        </div>
-        
-        <div className="mt-8 pt-6 border-t border-border text-xs text-muted-foreground text-center space-y-3">
-          <p className="font-medium">Demo Credentials:</p>
-          <div className="flex justify-center gap-4">
-            <span className="bg-surface-2 px-2.5 py-1 rounded-md font-medium text-foreground">user@example.com</span>
-            <span className="bg-surface-2 px-2.5 py-1 rounded-md font-medium text-foreground">admin@revolt.energy</span>
-          </div>
+          Already have an account? <Link href="/login" className="text-accent hover:underline font-medium">Sign in</Link>
         </div>
       </Card>
     </div>
